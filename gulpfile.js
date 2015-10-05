@@ -1,13 +1,22 @@
-var gulp         = require('gulp');
-var haml         = require('gulp-ruby-haml');
-var sass         = require('gulp-sass');
-var sourcemaps   = require('gulp-sourcemaps');
-var autoprefixer = require('gulp-autoprefixer');
-var concat       = require('gulp-concat');
-var coffee       = require('gulp-coffee');
-var uglify       = require('gulp-uglify');
-var browserSync  = require('browser-sync');
-var reload       = browserSync.reload;
+var gulp           = require('gulp');
+var bower          = require('gulp-bower');
+var mainBowerFiles = require('main-bower-files');
+var haml           = require('gulp-ruby-haml');
+var sass           = require('gulp-sass');
+var sourcemaps     = require('gulp-sourcemaps');
+var autoprefixer   = require('gulp-autoprefixer');
+var concat         = require('gulp-concat');
+var coffee         = require('gulp-coffee');
+var uglify         = require('gulp-uglify');
+var browserSync    = require('browser-sync');
+var reload         = browserSync.reload;
+
+gulp.task('bower', function(){
+  gulp.src(mainBowerFiles())
+    .pipe(uglify())
+    .pipe(concat('vendor.min.js'))
+    .pipe(gulp.dest('assets/js/'));
+});
 
 gulp.task('haml', function() {
   gulp.src('_haml/**/*.haml')
@@ -88,6 +97,7 @@ gulp.task('watch', function() {
 
 // Default Task
 gulp.task('default', [
+  'bower',
   'haml',
   'sass',
   'coffee',
