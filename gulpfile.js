@@ -11,8 +11,7 @@ var gulp           = require('gulp'),
     reload         = browserSync.reload,
     imagemin       = require('gulp-imagemin'),
     pngquant       = require('imagemin-pngquant'),
-    config         = require('./config'),
-    eslint         = require('gulp-eslint');
+    config         = require('./config');
 
 gulp.task('bower', function(){
   gulp.src(mainBowerFiles())
@@ -46,13 +45,6 @@ gulp.task('sass', function() {
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(config.css.src))
     .pipe(reload({stream: true}));
-});
-
-gulp.task('lint', function () {
-  return gulp.src(['js/**/*.js'])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failOnError());
 });
 
 gulp.task('uglify', function() {
@@ -98,18 +90,15 @@ gulp.task('watch', function() {
   gulp.watch(config.html.srcFiles, ['haml']);
   gulp.watch(config.css.srcFiles, ['sass']);
   gulp.watch(config.js.srcFiles, ['uglify']);
-  gulp.watch(config.media.srcFiles, ['imagemin']);
-  gulp.watch('bower_components/**', ['bower']);
+  // gulp.watch(config.media.srcFiles, ['imagemin']);
+  // gulp.watch('bower_components/**', ['bower']);
 });
 
 // Default Task
 gulp.task('default', [
-  'bower',
   'haml',
   'sass',
-  'lint',
   'uglify',
-  'imagemin',
   'browser-sync',
   'watch'
 ]);

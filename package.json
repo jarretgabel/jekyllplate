@@ -22,7 +22,6 @@
     "gulp-bower": "0.0.10",
     "main-bower-files": "~2.9.0",
     "gulp-imagemin": "~2.3.0",
-    "imagemin-pngquant": "~4.2.0",
-    "gulp-eslint": "~1.0.0"
+    "imagemin-pngquant": "~4.2.0"
   }
 }
