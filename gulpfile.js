@@ -1,24 +1,28 @@
-var gulp           = require('gulp');
-var bower          = require('gulp-bower');
-var mainBowerFiles = require('main-bower-files');
-var haml           = require('gulp-ruby-haml');
-var sass           = require('gulp-sass');
-var sourcemaps     = require('gulp-sourcemaps');
-var autoprefixer   = require('gulp-autoprefixer');
-var concat         = require('gulp-concat');
-var uglify         = require('gulp-uglify');
-var browserSync    = require('browser-sync');
-var reload         = browserSync.reload;
+var gulp           = require('gulp'),
+    bower          = require('gulp-bower'),
+    mainBowerFiles = require('main-bower-files'),
+    haml           = require('gulp-ruby-haml'),
+    sass           = require('gulp-sass'),
+    sourcemaps     = require('gulp-sourcemaps'),
+    autoprefixer   = require('gulp-autoprefixer'),
+    concat         = require('gulp-concat'),
+    uglify         = require('gulp-uglify'),
+    browserSync    = require('browser-sync'),
+    reload         = browserSync.reload,
+    imagemin       = require('gulp-imagemin'),
+    pngquant       = require('imagemin-pngquant'),
+    config         = require('./config'),
+    eslint         = require('gulp-eslint');
 
 gulp.task('bower', function(){
   gulp.src(mainBowerFiles())
     .pipe(uglify())
     .pipe(concat('vendor.min.js'))
-    .pipe(gulp.dest('assets/js/'));
+    .pipe(gulp.dest(config.js.src));
 });
 
 gulp.task('haml', function() {
-  gulp.src('_haml/**/*.haml')
+  gulp.src(config.html.srcFiles)
     .pipe(haml())
     .on('error', function (err) {
       console.log(err);
@@ -28,7 +32,7 @@ gulp.task('haml', function() {
 });
 
 gulp.task('sass', function() {
-  gulp.src('assets/_sass/**/*.sass')
+  gulp.src(config.css.srcFiles)
     .pipe(sourcemaps.init())
     .pipe(sass({
       indentedSyntax: true,
@@ -40,26 +44,43 @@ gulp.task('sass', function() {
     }))
     .pipe(autoprefixer())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('assets/css/'))
+    .pipe(gulp.dest(config.css.src))
     .pipe(reload({stream: true}));
 });
 
+gulp.task('lint', function () {
+  return gulp.src(['js/**/*.js'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failOnError());
+});
+
 gulp.task('uglify', function() {
-  return gulp.src('assets/js/main.js')
+  return gulp.src(config.js.srcFiles)
     .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('assets/js/'));
+    .pipe(gulp.dest(config.js.src));
+});
+
+gulp.task('imagemin', function () {
+  return gulp.src(config.media.srcFiles)
+    .pipe(imagemin({
+      progessive: true,
+      svgoPlugins: [{removeViewBox: false}],
+      use: [pngquant()]
+    }))
+    .pipe(gulp.dest(config.media.dest));
 });
 
 gulp.task('browser-sync', function() {
   browserSync({
     notify: false,
     files: [
-      '_site/assets/css/*.css',
-      '_site/assets/media/**',
-      '_site/assets/js/**/*.js',
-      '_site/**/*.html'
+      config.css.destFiles,
+      config.media.destFiles,
+      config.js.destFiles,
+      config.html.destFiles
     ],
     ghostMode: {
       clicks: true,
@@ -68,15 +89,16 @@ gulp.task('browser-sync', function() {
     open: false,
     logLevel: 'debug',
     server: {
-      baseDir: '_site'
+      baseDir: config.base
     }
   });
 });
 
 gulp.task('watch', function() {
-  gulp.watch('_haml/**/*.haml', ['haml']);
-  gulp.watch('assets/_sass/**/*.sass', ['sass']);
-  gulp.watch('assets/js/main.js', ['uglify']);
+  gulp.watch(config.html.srcFiles, ['haml']);
+  gulp.watch(config.css.srcFiles, ['sass']);
+  gulp.watch(config.js.srcFiles, ['uglify']);
+  gulp.watch(config.media.srcFiles, ['imagemin']);
   gulp.watch('bower_components/**', ['bower']);
 });
 
@@ -85,7 +107,9 @@ gulp.task('default', [
   'bower',
   'haml',
   'sass',
+  'lint',
   'uglify',
+  'imagemin',
   'browser-sync',
   'watch'
 ]);
