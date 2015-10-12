@@ -4,6 +4,7 @@ Thanks to [robojack](https://github.com/robojack) for the [fork](https://github.
 ### Gulp modules
 * Bower
 * Ruby HAML
+* Sass
 * Babel
 * Sourcemaps
 * Autoprefixer
@@ -15,3 +16,6 @@ Thanks to [robojack](https://github.com/robojack) for the [fork](https://github.
 * Slick
 * Default scrolling engine
 * Default helpers
+
+### CSS helpers
+* Susy grid system
