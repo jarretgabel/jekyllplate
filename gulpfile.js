@@ -51,11 +51,10 @@ gulp.task('process:sass', function() {
 
 gulp.task('process:js', function () {
     return gulp.src(config.js.srcFiles)
-        .pipe(babel())
         .pipe(sourcemaps.init())
-        .pipe(uglify())
+        .pipe(babel())
         .pipe(concat('all.js'))
-        .pipe(sourcemaps.write())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.js.src));
 });
 
