@@ -14,9 +14,10 @@ module.exports = {
     dest: prodAssets + '/css/'
   },
   js: {
-    srcFiles: devAssets + '/js/main.js',
+    srcFiles: devAssets + '/js/src/*.js',
     destFiles: prodAssets + '/js/*.js',
     src:  devAssets + '/js/',
+    srcVendor:  devAssets + '/vendor/',
     dest: prodAssets + '/js/'
   },
   media: {

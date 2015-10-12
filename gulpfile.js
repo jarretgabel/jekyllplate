@@ -11,16 +11,18 @@ var gulp           = require('gulp'),
     reload         = browserSync.reload,
     imagemin       = require('gulp-imagemin'),
     pngquant       = require('imagemin-pngquant'),
-    config         = require('./config');
+    config         = require('./config'),
+    babel          = require('gulp-babel');
 
-gulp.task('bower', function(){
+
+gulp.task('config:bower', function(){
   gulp.src(mainBowerFiles())
     .pipe(uglify())
     .pipe(concat('vendor.min.js'))
-    .pipe(gulp.dest(config.js.src));
+    .pipe(gulp.dest(config.js.srcVendor));
 });
 
-gulp.task('haml', function() {
+gulp.task('process:haml', function() {
   gulp.src(config.html.srcFiles)
     .pipe(haml())
     .on('error', function (err) {
@@ -30,7 +32,7 @@ gulp.task('haml', function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('sass', function() {
+gulp.task('process:sass', function() {
   gulp.src(config.css.srcFiles)
     .pipe(sourcemaps.init())
     .pipe(sass({
@@ -47,7 +49,17 @@ gulp.task('sass', function() {
     .pipe(reload({stream: true}));
 });
 
-gulp.task('uglify', function() {
+gulp.task('process:js', function () {
+    return gulp.src(config.js.srcFiles)
+        .pipe(babel())
+        .pipe(sourcemaps.init())
+        .pipe(uglify())
+        .pipe(concat('all.js'))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(config.js.src));
+});
+
+gulp.task('process:uglify', function() {
   return gulp.src(config.js.srcFiles)
     .pipe(sourcemaps.init())
     .pipe(uglify())
@@ -55,7 +67,7 @@ gulp.task('uglify', function() {
     .pipe(gulp.dest(config.js.src));
 });
 
-gulp.task('imagemin', function () {
+gulp.task('process:media', function () {
   return gulp.src(config.media.srcFiles)
     .pipe(imagemin({
       progessive: true,
@@ -65,7 +77,7 @@ gulp.task('imagemin', function () {
     .pipe(gulp.dest(config.media.dest));
 });
 
-gulp.task('browser-sync', function() {
+gulp.task('config:browser-sync', function() {
   browserSync({
     notify: false,
     files: [
@@ -87,18 +99,18 @@ gulp.task('browser-sync', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(config.html.srcFiles, ['haml']);
-  gulp.watch(config.css.srcFiles, ['sass']);
-  gulp.watch(config.js.srcFiles, ['uglify']);
-  // gulp.watch(config.media.srcFiles, ['imagemin']);
-  // gulp.watch('bower_components/**', ['bower']);
+  gulp.watch(config.html.srcFiles, ['process:haml']);
+  gulp.watch(config.css.srcFiles, ['process:sass']);
+  gulp.watch(config.js.srcFiles, ['process:js']);
+  // gulp.watch(config.media.srcFiles, ['process:media']);
+  // gulp.watch('bower_components/**', ['config:bower']);
 });
 
 // Default Task
 gulp.task('default', [
-  'haml',
-  'sass',
-  'uglify',
-  'browser-sync',
+  'process:haml',
+  'process:sass',
+  'process:js',
+  'config:browser-sync',
   'watch'
 ]);
